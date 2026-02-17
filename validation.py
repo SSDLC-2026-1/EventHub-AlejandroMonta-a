@@ -40,6 +40,7 @@ def normalize_basic(value: str) -> str:
     """
     Normalize input using NFKC and strip whitespace.
     """
+
     return unicodedata.normalize("NFKC", (value or "")).strip()
 
 
@@ -85,9 +86,13 @@ def validate_card_number(card_number: str) -> Tuple[str, str]:
         - If invalid → return ("", "Error message")
         - If valid → return (all credit card digits, "")
     """
-    # TODO: Implement validation
-    return "", ""
-
+    card_number = normalize_basic(card_number)
+    card_number = re.sub(r"[^0-9]", "", card_number)
+    if card_number.isdigit() and len(card_number) >= 13 and len(card_number) <= 19:
+        return card_number, ""
+    else: 
+        return "", "Only digits allowed, please retype your card number"
+    
 
 def validate_exp_date(exp_date: str) -> Tuple[str, str]:
     """
@@ -105,9 +110,20 @@ def validate_exp_date(exp_date: str) -> Tuple[str, str]:
     Returns:
         (normalized_exp_date, error_message)
     """
-    # TODO: Implement validation
-    return "", ""
+    exp_date = normalize_basic(exp_date)
+    try:
+        date_obj = datetime.strptime(exp_date, '%m/%y')
+    except ValueError:
+        return "", "Please use MM/YY format"
 
+
+    today = datetime.now()
+
+    
+    if date_obj.year < today.year or (date_obj.year == today.year and date_obj.month < today.month):
+        return "", "Out of date, use another card."
+    else:
+        return "", ""
 
 def validate_cvv(cvv: str) -> Tuple[str, str]:
     """
@@ -125,8 +141,10 @@ def validate_cvv(cvv: str) -> Tuple[str, str]:
         ("", error_message)
         (always return empty clean value for security reasons)
     """
-    # TODO: Implement validation
-    return "", ""
+    cvv = normalize_basic(cvv)
+    if cvv.isdigit() and  len(cvv) in [3, 4]:
+        return "", ""
+    return "", "Invalid CVV"
 
 
 def validate_billing_email(billing_email: str) -> Tuple[str, str]:
@@ -144,8 +162,15 @@ def validate_billing_email(billing_email: str) -> Tuple[str, str]:
     Returns:
         (normalized_email, error_message)
     """
-    # TODO: Implement validation
-    return "", ""
+    billing_email = normalize_basic(billing_email).lower()
+    normalized_email = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+    if len(billing_email) > 254:
+        return "", "Too long"
+
+    if re.match(normalized_email, billing_email):
+        return billing_email, ""
+    else:
+        return "", "Invalid email format"
 
 
 def validate_name_on_card(name_on_card: str) -> Tuple[str, str]:
@@ -164,10 +189,12 @@ def validate_name_on_card(name_on_card: str) -> Tuple[str, str]:
     Returns:
         (normalized_name, error_message)
     """
-    # TODO: Implement validation
+    name_on_card = normalize_basic(name_on_card)
+    normalized_name = " ".join(name_on_card.split())
+    if (len(normalized_name) < 2 or len(normalized_name) > 60):
+        return "", "Name must be have only strings"
+    if normalized_name
     return "", ""
-
-
 # =============================
 # Orchestrator Function
 # =============================
