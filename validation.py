@@ -99,12 +99,11 @@ def validate_card_number(card_number: str) -> Tuple[str, str]:
     """
     card_number = normalize_basic(card_number)
     card_number = re.sub(r"[^0-9]", "", card_number)
+    if not luhn_is_valid(card_number):
+        return "", "Invalid card number by Luhn"
     if card_number.isdigit() and len(card_number) >= 13 and len(card_number) <= 19:
         return card_number, ""
-    
-    if not luhn_is_valid(card_number):
-        return "", "Invalid card number."
-    
+
     else: 
         return "", "Only digits allowed, please retype your card number"
 
@@ -207,10 +206,11 @@ def validate_name_on_card(name_on_card: str) -> Tuple[str, str]:
     normalized_name = " ".join(name_on_card.split())
     if (len(normalized_name) < 2 or len(normalized_name) > 60):
         return "", "Name must be have only strings"
-    if normalized_name.isalpha():
+    all_digits_allowed = r"^[a-zA-ZÀ-ÿ\u00f1\u00d1\s'-]+$"
+    if re.match(all_digits_allowed, normalized_name):
         return normalized_name, ""
     else:
-        return "","Use only characters."
+        return "", "Invalid name format."
 
 # =============================
 # Orchestrator Function

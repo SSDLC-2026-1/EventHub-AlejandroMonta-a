@@ -71,5 +71,23 @@
       "billing_email": "",
       "card": "123123123123123123"
     }
+  },
+  {
+    "id": 5,
+    "user_email": "PLACEHOLDER@EMAIL.COM",
+    "event_id": 6,
+    "event_title": "Rock Legends Live",
+    "qty": 1,
+    "unit_price": 95.0,
+    "service_fee": 5.0,
+    "total": 100.0,
+    "status": "PAID",
+    "created_at": "2026-02-17T23:51:26.448745",
+    "payment": {
+      "exp_date": "",
+      "name_on_card": "Juan P\u00e9rez",
+      "billing_email": "john.doe@example.com",
+      "card": "4111111111111111"
+    }
   }
 ]
