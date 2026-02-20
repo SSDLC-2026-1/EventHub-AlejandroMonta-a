@@ -21,19 +21,73 @@
   {
     "id": 2,
     "user_email": "PLACEHOLDER@EMAIL.COM",
-    "event_id": 1,
-    "event_title": "Summer Music Fest",
+    "event_id": 6,
+    "event_title": "Rock Legends Live",
     "qty": 1,
-    "unit_price": 75.0,
+    "unit_price": 95.0,
     "service_fee": 5.0,
-    "total": 80.0,
+    "total": 100.0,
     "status": "PAID",
-    "created_at": "2026-02-17T22:13:05.445736",
+    "created_at": "2026-02-17T22:27:18.540405",
     "payment": {
-      "exp_date": "12/29",
-      "name_on_card": "Juan Perez",
-      "billing_email": "ohn.doe@example.com",
-      "card": ""
+      "exp_date": "",
+      "name_on_card": "",
+      "billing_email": "",
+      "card": "4314233412341233"
+    }
+  },
+  {
+    "id": 3,
+    "user_email": "PLACEHOLDER@EMAIL.COM",
+    "event_id": 6,
+    "event_title": "Rock Legends Live",
+    "qty": 1,
+    "unit_price": 95.0,
+    "service_fee": 5.0,
+    "total": 100.0,
+    "status": "PAID",
+    "created_at": "2026-02-17T22:28:15.697425",
+    "payment": {
+      "exp_date": "",
+      "name_on_card": "",
+      "billing_email": "",
+      "card": "4212345322223333"
+    }
+  },
+  {
+    "id": 4,
+    "user_email": "PLACEHOLDER@EMAIL.COM",
+    "event_id": 6,
+    "event_title": "Rock Legends Live",
+    "qty": 1,
+    "unit_price": 95.0,
+    "service_fee": 5.0,
+    "total": 100.0,
+    "status": "PAID",
+    "created_at": "2026-02-17T22:50:44.402415",
+    "payment": {
+      "exp_date": "12/26",
+      "name_on_card": "",
+      "billing_email": "",
+      "card": "123123123123123123"
+    }
+  },
+  {
+    "id": 5,
+    "user_email": "PLACEHOLDER@EMAIL.COM",
+    "event_id": 6,
+    "event_title": "Rock Legends Live",
+    "qty": 1,
+    "unit_price": 95.0,
+    "service_fee": 5.0,
+    "total": 100.0,
+    "status": "PAID",
+    "created_at": "2026-02-17T23:51:26.448745",
+    "payment": {
+      "exp_date": "",
+      "name_on_card": "Juan P\u00e9rez",
+      "billing_email": "john.doe@example.com",
+      "card": "4111111111111111"
     }
   }
 ]
