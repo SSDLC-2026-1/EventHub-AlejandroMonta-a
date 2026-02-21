@@ -15,6 +15,19 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.secret_key = "dev-secret-change-me"
 
 
+@app.context_processor
+def inject_user():
+    """Inyecta el usuario actual y la bandera is_admin en el contexto de las plantillas."""
+    try:
+        user = get_current_user()
+    except Exception:
+        user = None
+    return {
+        "current_user": user,
+        "is_admin": bool(user and (user.get("role") == "admin")),
+    }
+
+
 BASE_DIR = Path(__file__).resolve().parent
 EVENTS_PATH = BASE_DIR / "data" / "events.json"
 USERS_PATH = BASE_DIR / "data" / "users.json"

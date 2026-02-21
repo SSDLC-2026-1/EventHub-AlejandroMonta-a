@@ -28,6 +28,9 @@
 
       {% if session.get("user_email") %}
         <a class="btn btn-ghost" href="{{ url_for('profile') }}">My Profile</a>
+      {% if is_admin %}
+          <a class="btn btn-ghost" href="{{ url_for('admin_users') }}">Admin Panel</a>
+        {% endif %}
       {% else %}
         <a class="btn btn-ghost" href="{{ url_for('login') }}">Login</a>
         <a class="btn btn-primary" href="{{ url_for('register') }}">Register</a>
