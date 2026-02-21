@@ -1,4 +1,4 @@
-#Modificado por David Lara y 
+#Modificado por David Lara y Alejandro Montaña
 
 from __future__ import annotations
 
