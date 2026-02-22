@@ -17,6 +17,10 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.secret_key = "dev-secret-change-me"
 
 
+MAX_FAILED_ATTEMPTS = 5
+LOCKOUT_DURATION_MINUTES = 5
+LOGIN_ATTEMPTS: Dict[str, Dict[str, int]] = {}
+
 @app.context_processor
 def inject_user():
     """Inyecta el usuario actual y la bandera is_admin en el contexto de las plantillas."""
@@ -258,6 +262,7 @@ def login():
 
     email = request.form.get("email", "")
     password = request.form.get("password", "")
+    email_norm = (email or "").strip().lower()
 
     field_errors = {}
 
@@ -271,17 +276,45 @@ def login():
             "login.html",
             error="Please fix the highlighted fields.",
             field_errors=field_errors,
-            form={"email": email},
+            form={"email": email_norm},
         ), 400
 
-    user = find_user_by_email(email)
+    user = find_user_by_email(email_norm)
+
+    if user:
+        if email_norm not in LOGIN_ATTEMPTS:
+            LOGIN_ATTEMPTS[email_norm] = {"intentos": 0, "tiempoBloqueo": 0}
+
+        estado = LOGIN_ATTEMPTS[email_norm]
+        now_ts = int(datetime.now().timestamp())
+
+        if estado.get("tiempoBloqueo", 0) > now_ts:
+            remaining_seconds = estado["tiempoBloqueo"] - now_ts
+            remaining_minutes = remaining_seconds // 60
+            remaining_secs = remaining_seconds % 60
+            return render_template(
+                "login.html",
+                error=f"Security Lockout. Try again in {remaining_minutes}:{remaining_secs}",
+                field_errors={"email": " ", "password": " "},
+                form={"email": email_norm},
+            ), 403
+
     if not user or user.get("password") != password:
+        if user:
+            estado = LOGIN_ATTEMPTS[email_norm]
+            estado["intentos"] = estado.get("intentos", 0) + 1
+
+            if estado["intentos"] >= MAX_FAILED_ATTEMPTS:
+                estado["tiempoBloqueo"] = int(datetime.now().timestamp()) + (LOCKOUT_DURATION_MINUTES * 60)
+
         return render_template(
             "login.html",
             error="Invalid credentials.",
             field_errors={"email": " ", "password": " "},
-            form={"email": email},
+            form={"email": email_norm},
         ), 401
+
+    LOGIN_ATTEMPTS[email_norm] = {"intentos": 0, "tiempoBloqueo": 0}
 
     session["user_email"] = (user.get("email") or "").strip().lower()
 
