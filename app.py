@@ -11,29 +11,20 @@ from pathlib import Path
 import json
 
 from validation import validate_payment_form
+from functools import wraps
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.secret_key = "dev-secret-change-me"
 
+<<<<<<< HEAD
 
 MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_DURATION_MINUTES = 5
 LOGIN_ATTEMPTS: Dict[str, Dict[str, int]] = {}
 
-@app.context_processor
-def inject_user():
-    """Inyecta el usuario actual y la bandera is_admin en el contexto de las plantillas."""
-    try:
-        user = get_current_user()
-    except Exception:
-        user = None
-    return {
-        "current_user": user,
-        "is_admin": bool(user and (user.get("role") == "admin")),
-    }
-
-
+=======
+>>>>>>> b99b0fb (error_403)
 BASE_DIR = Path(__file__).resolve().parent
 EVENTS_PATH = BASE_DIR / "data" / "events.json"
 USERS_PATH = BASE_DIR / "data" / "users.json"
@@ -69,6 +60,43 @@ def get_current_user() -> Optional[dict]:
         return None
     return find_user_by_email(email)
 
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not get_current_user():
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
+
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+
+        user = get_current_user()
+
+        if not user:
+            return redirect(url_for("login"))
+
+        if user.get("role") != "admin":
+            abort(403)
+
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template("error_403.html"), 403
+
+@app.context_processor
+def inject_user():
+    user = get_current_user()
+    return {
+        "current_user": user,
+        "is_admin": user and user.get("role") == "admin"
+    }
 
 
 def load_events() -> List[Event]:
@@ -355,6 +383,7 @@ def register():
     return redirect(url_for("login", registered="1"))
 
 @app.get("/dashboard")
+@login_required
 def dashboard():
 
 
@@ -363,6 +392,7 @@ def dashboard():
     return render_template("dashboard.html", user_name=(user.get("full_name") if user else "User"), paid=paid)
 
 @app.route("/checkout/<int:event_id>", methods=["GET", "POST"])
+@login_required
 def checkout(event_id: int):
 
 
@@ -442,6 +472,7 @@ def checkout(event_id: int):
 
 
 @app.route("/profile", methods=["GET", "POST"])
+@login_required
 def profile():
  
 
@@ -492,6 +523,7 @@ def profile():
         success_message=success_msg,
     )
 @app.get("/admin/users")
+@admin_required
 def admin_users():
 
     q = (request.args.get("q") or "").strip().lower()
@@ -530,6 +562,7 @@ def admin_users():
     )
 
 @app.post("/admin/users/<int:user_id>/toggle")
+@admin_required
 def admin_toggle_user(user_id: int):
     users = load_users()
     for u in users:
@@ -541,6 +574,7 @@ def admin_toggle_user(user_id: int):
     return redirect(url_for("admin_users"))
 
 @app.post("/admin/users/<int:user_id>/role")
+@admin_required
 def admin_change_role(user_id: int):
     new_role = request.form.get("role", "user")
 

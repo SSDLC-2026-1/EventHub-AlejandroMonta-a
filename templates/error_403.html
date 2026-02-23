@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+
+<section class="error-page">
+
+    <!-- número gigante de fondo -->
+    <div class="error-bg">403</div>
+
+    <div class="error-card">
+
+        <div class="error-icon">
+            <!-- icono simple tipo lock -->
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.5 10.5V7a4.5 4.5 0 10-9 0v3.5M5.25 10.5h13.5v9a1.5 1.5 0 01-1.5 1.5H6.75A1.5 1.5 0 015.25 19.5v-9z"/>
+            </svg>
+        </div>
+
+        <h1 class="error-title">
+            Access <span>Restricted</span>
+        </h1>
+
+        <p class="error-text">
+            You don't have permission to access this page.
+        </p>
+
+        <div class="error-info">
+            This area is restricted to authorized users only.
+            If you believe this is an error, please contact support.
+        </div>
+
+        <div class="error-actions">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                Go back Home
+            </a>
+
+            <a href="{{ url_for('login') }}" class="btn btn-ghost">
+                Login with another account
+            </a>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
