@@ -17,14 +17,11 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.secret_key = "dev-secret-change-me"
 
-<<<<<<< HEAD
 
 MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_DURATION_MINUTES = 5
 LOGIN_ATTEMPTS: Dict[str, Dict[str, int]] = {}
 
-=======
->>>>>>> b99b0fb (error_403)
 BASE_DIR = Path(__file__).resolve().parent
 EVENTS_PATH = BASE_DIR / "data" / "events.json"
 USERS_PATH = BASE_DIR / "data" / "users.json"
