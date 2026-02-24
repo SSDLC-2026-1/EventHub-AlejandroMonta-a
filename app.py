@@ -10,7 +10,12 @@ from flask import Flask, render_template, request, abort, url_for, redirect, ses
 from pathlib import Path
 import json
 
-from validation import validate_payment_form
+from validation import (
+    validate_payment_form,
+    validate_register_form,
+    validate_login_form,
+    validate_profile_form
+)
 from functools import wraps
 
 app = Flask(__name__)
@@ -286,7 +291,19 @@ def login():
 
     email = request.form.get("email", "")
     password = request.form.get("password", "")
-    email_norm = (email or "").strip().lower()
+
+    clean, errors = validate_login_form(email, password)
+
+    if errors:
+        return render_template(
+            "login.html",
+            error="Invalid credentials.",
+            field_errors=errors,
+            form={"email": email}
+        ), 400
+
+    email_norm = clean["email"]
+    password = clean["password"]
 
     field_errors = {}
 
@@ -365,10 +382,19 @@ def register():
     password = request.form.get("password", "")
     confirm_password = request.form.get("confirm_password", "")
 
-    if user_exists(email):
+    clean, errors = validate_register_form(
+        full_name,
+        email,
+        phone,
+        password,
+        confirm_password
+    )
+
+    if errors:
         return render_template(
             "register.html",
-            error="This email is already registered. Try signing in."
+            field_errors=errors,
+            form=request.form
         ), 400
 
     users = load_users()
@@ -376,11 +402,11 @@ def register():
 
     users.append({
         "id": next_id,
-        "full_name": full_name,
-        "email": email,
-        "phone": phone,
-        "password": password,
-        "role": "user",          
+        "full_name": clean["full_name"],
+        "email": clean["email"],
+        "phone": clean["phone"],
+        "password": clean["password"],
+        "role": "user",
         "status": "active",
     })
 
@@ -499,21 +525,34 @@ def profile():
     if request.method == "POST":
         full_name = request.form.get("full_name", "")
         phone = request.form.get("phone", "")
-
-        current_password = request.form.get("current_password", "")
         new_password = request.form.get("new_password", "")
         confirm_new_password = request.form.get("confirm_new_password", "")
+
+        clean, errors = validate_profile_form(
+            full_name,
+            phone,
+            new_password,
+            confirm_new_password,
+            user["email"]
+        )
+
+        if errors:
+            return render_template(
+                "profile.html",
+                form=form,
+                field_errors=errors
+            ), 400
 
         users = load_users()
         email_norm = (user.get("email") or "").strip().lower()
 
         for u in users:
             if (u.get("email") or "").strip().lower() == email_norm:
-                u["full_name"] = full_name
-                u["phone"] = phone
+                u["full_name"] = clean["full_name"]
+                u["phone"] = clean["phone"]
 
-                if new_password:
-                    u["password"] = new_password
+                if clean.get("new_password"):
+                    u["password"] = clean["new_password"]
                 break
 
         save_users(users)
