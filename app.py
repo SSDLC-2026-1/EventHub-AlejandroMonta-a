@@ -11,16 +11,28 @@ from pathlib import Path
 import json
 
 from validation import validate_payment_form
-from functools import wraps
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.secret_key = "dev-secret-change-me"
 
 
-MAX_FAILED_ATTEMPTS = 5
+MAX_FAILED_ATTEMPTS = 3
 LOCKOUT_DURATION_MINUTES = 5
 LOGIN_ATTEMPTS: Dict[str, Dict[str, int]] = {}
+
+@app.context_processor
+def inject_user():
+    """Inyecta el usuario actual y la bandera is_admin en el contexto de las plantillas."""
+    try:
+        user = get_current_user()
+    except Exception:
+        user = None
+    return {
+        "current_user": user,
+        "is_admin": bool(user and (user.get("role") == "admin")),
+    }
+
 
 BASE_DIR = Path(__file__).resolve().parent
 EVENTS_PATH = BASE_DIR / "data" / "events.json"
@@ -57,43 +69,6 @@ def get_current_user() -> Optional[dict]:
         return None
     return find_user_by_email(email)
 
-
-def login_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if not get_current_user():
-            return redirect(url_for("login"))
-        return f(*args, **kwargs)
-    return decorated
-
-def admin_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-
-        user = get_current_user()
-
-        if not user:
-            return redirect(url_for("login"))
-
-        if user.get("role") != "admin":
-            abort(403)
-
-        return f(*args, **kwargs)
-
-    return decorated
-
-
-@app.errorhandler(403)
-def forbidden(e):
-    return render_template("error_403.html"), 403
-
-@app.context_processor
-def inject_user():
-    user = get_current_user()
-    return {
-        "current_user": user,
-        "is_admin": user and user.get("role") == "admin"
-    }
 
 
 def load_events() -> List[Event]:
@@ -299,38 +274,48 @@ def login():
     if field_errors:
         return render_template(
             "login.html",
-            error="Please fix the highlighted fields.",
+            error="There's something wrong.",
             field_errors=field_errors,
             form={"email": email_norm},
         ), 400
 
     user = find_user_by_email(email_norm)
 
-    if user:
-        if email_norm not in LOGIN_ATTEMPTS:
-            LOGIN_ATTEMPTS[email_norm] = {"intentos": 0, "tiempoBloqueo": 0}
+    if email_norm not in LOGIN_ATTEMPTS:
+        LOGIN_ATTEMPTS[email_norm] = {"intentos": 0, "tiempoBloqueo": 0}
 
-        estado = LOGIN_ATTEMPTS[email_norm]
-        now_ts = int(datetime.now().timestamp())
+    estado = LOGIN_ATTEMPTS[email_norm]
+    now_ts = int(datetime.now().timestamp())
 
-        if estado.get("tiempoBloqueo", 0) > now_ts:
-            remaining_seconds = estado["tiempoBloqueo"] - now_ts
-            remaining_minutes = remaining_seconds // 60
-            remaining_secs = remaining_seconds % 60
-            return render_template(
-                "login.html",
-                error=f"Security Lockout. Try again in {remaining_minutes}:{remaining_secs}",
-                field_errors={"email": " ", "password": " "},
-                form={"email": email_norm},
-            ), 403
+    # Si el bloqueo termina, resetea intentos.
+    if estado.get("tiempoBloqueo", 0) > 0 and estado.get("tiempoBloqueo", 0) <= now_ts:
+        estado["intentos"] = 0
+        estado["tiempoBloqueo"] = 0
+
+    # Verifica si la cuenta esta bloqueada
+    if estado.get("tiempoBloqueo", 0) > now_ts:
+        remaining_seconds = estado["tiempoBloqueo"] - now_ts
+        remaining_minutes = remaining_seconds // 60
+        remaining_secs = remaining_seconds % 60
+        return render_template(
+            "login.html",
+            error=f"Security Lockout. Try again in {remaining_minutes}:{remaining_secs}",
+            field_errors={"email": " ", "password": " "},
+            form={"email": email_norm},
+        ), 403
 
     if not user or user.get("password") != password:
-        if user:
-            estado = LOGIN_ATTEMPTS[email_norm]
-            estado["intentos"] = estado.get("intentos", 0) + 1
+        estado["intentos"] = estado.get("intentos", 0) + 1
 
-            if estado["intentos"] >= MAX_FAILED_ATTEMPTS:
-                estado["tiempoBloqueo"] = int(datetime.now().timestamp()) + (LOCKOUT_DURATION_MINUTES * 60)
+        # Si se alcanza el límite, bloquear la cuenta por 5 minutos
+        if estado["intentos"] >= MAX_FAILED_ATTEMPTS:
+            estado["tiempoBloqueo"] = int(datetime.now().timestamp()) + (LOCKOUT_DURATION_MINUTES * 60)
+            return render_template(
+            "login.html",
+            error=f"Too many failed attempts. Try again in {LOCKOUT_DURATION_MINUTES} minutes.",
+            field_errors={"email": " ", "password": " "},
+            form={"email": email_norm},
+        ), 401
 
         return render_template(
             "login.html",
@@ -380,7 +365,6 @@ def register():
     return redirect(url_for("login", registered="1"))
 
 @app.get("/dashboard")
-@login_required
 def dashboard():
 
 
@@ -389,7 +373,6 @@ def dashboard():
     return render_template("dashboard.html", user_name=(user.get("full_name") if user else "User"), paid=paid)
 
 @app.route("/checkout/<int:event_id>", methods=["GET", "POST"])
-@login_required
 def checkout(event_id: int):
 
 
@@ -469,7 +452,6 @@ def checkout(event_id: int):
 
 
 @app.route("/profile", methods=["GET", "POST"])
-@login_required
 def profile():
  
 
@@ -520,7 +502,6 @@ def profile():
         success_message=success_msg,
     )
 @app.get("/admin/users")
-@admin_required
 def admin_users():
 
     q = (request.args.get("q") or "").strip().lower()
@@ -559,7 +540,6 @@ def admin_users():
     )
 
 @app.post("/admin/users/<int:user_id>/toggle")
-@admin_required
 def admin_toggle_user(user_id: int):
     users = load_users()
     for u in users:
@@ -571,7 +551,6 @@ def admin_toggle_user(user_id: int):
     return redirect(url_for("admin_users"))
 
 @app.post("/admin/users/<int:user_id>/role")
-@admin_required
 def admin_change_role(user_id: int):
     new_role = request.form.get("role", "user")
 
