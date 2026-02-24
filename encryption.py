@@ -61,13 +61,23 @@ def decrypt_aes(texto_cifrado_hex, nonce_hex, tag_hex, clave):
     4. Retornar el texto descifrado como string.
     """
 
+    
     # TODO: Implementar conversión de hex a bytes
+    texto_cifrado_hex = bytes.fromhex(texto_cifrado_hex)
+    nonce_hex = bytes.fromhex(nonce_hex)
+    tag_hex = bytes.fromhex(tag_hex)
 
     # TODO: Crear objeto AES con nonce
+    cipher = AES.new(clave, AES.MODE_EAX, nonce = nonce_hex)
+
 
     # TODO: Usar decrypt_and_verify
-
+    try:
+        texto_descifrado = cipher.decrypt_and_verify(texto_cifrado_hex, tag_hex)
+    except ValueError:
+        raise ValueError("La clave es incorrecta o el mensaje ha sido modificado")
     # TODO: Convertir resultado a string y retornar
+    return texto_descifrado.decode()
 
     pass
 
@@ -156,8 +166,8 @@ if __name__ == "__main__":
     print("Tag:", tag)
 
     # Cuando implementen decrypt_aes, esto debe funcionar
-    # texto_descifrado = decrypt_aes(texto_cifrado, nonce, tag, clave)
-    # print("Texto descifrado:", texto_descifrado)
+    texto_descifrado = decrypt_aes(texto_cifrado, nonce, tag, clave)
+    print("Texto descifrado:", texto_descifrado)
 
 
     print("\n=== PRUEBA HASH ===")
