@@ -71,12 +71,8 @@ def decrypt_aes(texto_cifrado_hex, nonce_hex, tag_hex, clave):
     cipher = AES.new(clave, AES.MODE_EAX, nonce = nonce_hex)
 
 
-    # TODO: Usar decrypt_and_verify
-    try:
-        texto_descifrado = cipher.decrypt_and_verify(texto_cifrado_hex, tag_hex)
-    except ValueError:
-        raise ValueError("La clave es incorrecta o el mensaje ha sido modificado")
-    # TODO: Convertir resultado a string y retornar
+    texto_descifrado = cipher.decrypt_and_verify(texto_cifrado_hex, tag_hex)
+    
     return texto_descifrado.decode()
 
     pass
