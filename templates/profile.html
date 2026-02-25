@@ -62,26 +62,35 @@
             <div class="security-grid">
             <div>
                 <label class="auth-label" for="current_password">Current Password</label>
-                <div class="auth-input">
+                <div class="auth-input {% if field_errors.get('current_password') %}has-error{% endif %}">
                 <span class="auth-icon">🔑</span>
                 <input id="current_password" name="current_password" type="password" placeholder="••••••••">
                 </div>
+                {% if field_errors.get('current_password') %}
+                  <div class="field-error">⛔ {{ field_errors.get('current_password') }}</div>
+                {% endif %}
             </div>
 
             <div>
                 <label class="auth-label" for="new_password">New Password</label>
-                <div class="auth-input">
+                <div class="auth-input {% if field_errors.get('new_password') %}has-error{% endif %}">
                 <span class="auth-icon">🆕</span>
                 <input id="new_password" name="new_password" type="password" placeholder="••••••••">
                 </div>
+                {% if field_errors.get('new_password') %}
+                  <div class="field-error">⛔ {{ field_errors.get('new_password') }}</div>
+                {% endif %}
             </div>
 
             <div>
                 <label class="auth-label" for="confirm_new_password">Confirm New Password</label>
-                <div class="auth-input">
+                <div class="auth-input {% if field_errors.get('confirm_new_password') %}has-error{% endif %}">
                 <span class="auth-icon">✅</span>
                 <input id="confirm_new_password" name="confirm_new_password" type="password" placeholder="••••••••">
                 </div>
+                {% if field_errors.get('confirm_new_password') %}
+                  <div class="field-error">⛔ {{ field_errors.get('confirm_new_password') }}</div>
+                {% endif %}
             </div>
             </div>
 

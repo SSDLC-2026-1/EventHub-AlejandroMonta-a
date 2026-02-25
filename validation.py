@@ -389,9 +389,11 @@ def validate_register_form(
 def validate_profile_form(
     full_name: str,
     phone: str,
+    current_password: str,
     new_password: str,
     confirm_new_password: str,
-    user_email: str
+    user_email: str,
+    stored_password: str
 ) -> Tuple[Dict, Dict]:
 
     clean = {}
@@ -408,15 +410,21 @@ def validate_profile_form(
     clean["phone"] = phone_clean
 
     if new_password:
+        current_password = normalize_basic(current_password)
+        
+        if not current_password:
+            errors["current_password"] = "Current password is required"
+        elif current_password != stored_password:
+            errors["current_password"] = "Current password is incorrect"
+        else:
+            password_clean, err = validate_password(new_password, user_email)
+            if err:
+                errors["new_password"] = err
+            clean["new_password"] = password_clean
 
-        password_clean, err = validate_password(new_password, user_email)
-        if err:
-            errors["new_password"] = err
-        clean["new_password"] = password_clean
-
-        _, err = validate_password_confirmation(new_password, confirm_new_password)
-        if err:
-            errors["confirm_new_password"] = err
+            _, err = validate_password_confirmation(new_password, confirm_new_password)
+            if err:
+                errors["confirm_new_password"] = err
 
     return clean, errors
 
@@ -428,15 +436,19 @@ def validate_login_form(
     clean = {}
     errors = {}
 
+    email = normalize_basic(email)
+    password = normalize_basic(password)
+
+    if not email or not password:
+        errors["general"] = "Invalid credentials"
+        return clean, errors
+
     email_clean, err = validate_email(email)
     if err:
-        errors["email"] = "Invalid credentials"
+        errors["general"] = "Invalid credentials"
+        return clean, errors
+
     clean["email"] = email_clean
-
-    password = normalize_basic(password)
-    if not password:
-        errors["password"] = "Invalid credentials"
-
     clean["password"] = password
 
     return clean, errors

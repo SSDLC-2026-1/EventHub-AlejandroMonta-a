@@ -298,27 +298,11 @@ def login():
         return render_template(
             "login.html",
             error="Invalid credentials.",
-            field_errors=errors,
             form={"email": email}
         ), 400
 
     email_norm = clean["email"]
     password = clean["password"]
-
-    field_errors = {}
-
-    if not email.strip():
-        field_errors["email"] = "Email is required."
-    if not password.strip():
-        field_errors["password"] = "Password is required."
-
-    if field_errors:
-        return render_template(
-            "login.html",
-            error="There's something wrong.",
-            field_errors=field_errors,
-            form={"email": email_norm},
-        ), 400
 
     user = find_user_by_email(email_norm)
 
@@ -354,14 +338,12 @@ def login():
             return render_template(
             "login.html",
             error=f"Too many failed attempts. Try again in {LOCKOUT_DURATION_MINUTES} minutes.",
-            field_errors={"email": " ", "password": " "},
             form={"email": email_norm},
         ), 401
 
         return render_template(
             "login.html",
             error="Invalid credentials.",
-            field_errors={"email": " ", "password": " "},
             form={"email": email_norm},
         ), 401
 
@@ -391,6 +373,14 @@ def register():
     )
 
     if errors:
+        return render_template(
+            "register.html",
+            field_errors=errors,
+            form=request.form
+        ), 400
+
+    if user_exists(clean["email"]):
+        errors["email"] = "Email already registered"
         return render_template(
             "register.html",
             field_errors=errors,
@@ -525,15 +515,18 @@ def profile():
     if request.method == "POST":
         full_name = request.form.get("full_name", "")
         phone = request.form.get("phone", "")
+        current_password = request.form.get("current_password", "")
         new_password = request.form.get("new_password", "")
         confirm_new_password = request.form.get("confirm_new_password", "")
 
         clean, errors = validate_profile_form(
             full_name,
             phone,
+            current_password,
             new_password,
             confirm_new_password,
-            user["email"]
+            user["email"],
+            user["password"]
         )
 
         if errors:

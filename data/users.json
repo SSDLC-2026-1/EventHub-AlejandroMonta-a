@@ -8,12 +8,21 @@
     "role": "admin",
     "status": "active"
   },
-    {
+  {
     "id": 2,
     "full_name": "pepito",
     "email": "test3@tes.com",
     "phone": "3001111112",
     "password": "aaa114",
+    "role": "user",
+    "status": "active"
+  },
+  {
+    "id": 3,
+    "full_name": "adadadd",
+    "email": "hola@gmail.com",
+    "phone": "3506787879",
+    "password": "AmoLosGrafos0-",
     "role": "user",
     "status": "active"
   }
