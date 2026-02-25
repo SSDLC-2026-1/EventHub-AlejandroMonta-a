@@ -283,7 +283,7 @@ def validate_password(password: str, email: str) -> Tuple[str, str]:
     if not re.search(r"[0-9]", password):
         return "", "Must include number."
 
-    if not re.search(r"[!@#$%^&*()\-_=+\[\]{}<>?]", password):
+    if not re.search(r"[!@#$%^&*()\-_=+\[\]{}<>?/]", password):
         return "", "Must include special character."
 
     return password, ""

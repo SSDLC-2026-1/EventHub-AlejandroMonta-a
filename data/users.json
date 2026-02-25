@@ -19,10 +19,19 @@
   },
   {
     "id": 3,
-    "full_name": "adadadd",
+    "full_name": "El que ama los graFos con todo su coraz\u00f3n",
     "email": "hola@gmail.com",
-    "phone": "3506787879",
+    "phone": "35067878790",
     "password": "AmoLosGrafos0-",
+    "role": "user",
+    "status": "active"
+  },
+  {
+    "id": 4,
+    "full_name": "Topo",
+    "email": "topo@ciego.com",
+    "phone": "00000000001",
+    "password": "El/topo/no/es/un/animal/c1eg0",
     "role": "user",
     "status": "active"
   }
