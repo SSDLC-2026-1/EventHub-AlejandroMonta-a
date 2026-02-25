@@ -542,3 +542,18 @@ a{color:inherit; text-decoration:none}
   justify-content:center;
   flex-wrap:wrap;
 }
+
+.field-error{
+  margin-top: 6px;
+  font-size: 13px;
+  color: #ff4d4f;
+  font-weight: 500;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.auth-input.has-error{
+  border-color: #ff4d4f;
+  box-shadow: 0 0 0 1px rgba(255,77,79,.25);
+}

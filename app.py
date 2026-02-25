@@ -356,7 +356,11 @@ def login():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        return render_template("register.html")
+        return render_template(
+            "register.html",
+            field_errors={},
+            form={}
+        )
 
     full_name = request.form.get("full_name", "")
     email = request.form.get("email", "")
