@@ -27,7 +27,27 @@
       </form>
 
       {% if session.get("user_email") %}
-        <a class="btn btn-ghost" href="{{ url_for('profile') }}">My Profile</a>
+      <div class="dropdown">
+          <a href="#" class="btn btn-ghost dropdown-toggle">
+              My Profile
+          </a>
+
+          <div id="profileMenu" class="dropdown-menu">
+
+              <a href="{{ url_for('profile') }}" class="dropdown-item">
+                Settings
+              </a>
+
+              <div class="dropdown-divider"></div>
+
+              <form method="POST" action="{{ url_for('logout') }}">
+                <button type="submit" class="dropdown-item logout-btn">
+                    Logout
+                </button>
+              </form>
+
+          </div>
+      </div>
       {% if is_admin %}
           <a class="btn btn-ghost" href="{{ url_for('admin_users') }}">Admin Panel</a>
         {% endif %}

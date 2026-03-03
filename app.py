@@ -651,5 +651,10 @@ def admin_change_role(user_id: int):
     save_users(users)
     return redirect(url_for("admin_users"))
 
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+    
 if __name__ == "__main__":
     app.run(debug=True)
