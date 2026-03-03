@@ -143,6 +143,14 @@ def _safe_int(value: str, default: int = 1, min_v: int = 1, max_v: int = 10) -> 
         return default
     return max(min_v, min(max_v, n))
 
+def _card_last4(card_number: str) -> str:
+    digits = "".join(ch for ch in (card_number or "") if ch.isdigit())
+    return digits[-4:] if len(digits) >= 4 else ""
+
+def _card_masked(card_number: str) -> str:
+    last4 = _card_last4(card_number)
+    return f"**** **** **** {last4}" if last4 else ""
+
 
 def filter_events(
     q: str = "",
@@ -470,12 +478,14 @@ def checkout(event_id: int):
         name_on_card=name_on_card,
         billing_email=billing_email
     )
+    card_last4 = _card_last4(clean.get("card", ""))
+    card_masked = _card_masked(clean.get("card", ""))
 
     form_data = {
         "exp_date": clean.get("exp_date", ""),
         "name_on_card": clean.get("name_on_card", ""),
         "billing_email": clean.get("billing_email", ""),
-        "card": clean.get("card", "")
+        "card_masked": card_masked
     }
 
     if errors:
@@ -504,8 +514,9 @@ def checkout(event_id: int):
     })
 
     save_orders(orders)
-
+    
     return redirect(url_for("dashboard", paid="1"))
+
 
 
 

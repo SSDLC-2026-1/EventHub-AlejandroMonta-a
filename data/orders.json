@@ -89,5 +89,79 @@
       "billing_email": "john.doe@example.com",
       "card": "4111111111111111"
     }
+  },
+  {
+    "id": 6,
+    "user_email": "PLACEHOLDER@EMAIL.COM",
+    "event_id": 9,
+    "event_title": "Champions League Final Viewing",
+    "qty": 1,
+    "unit_price": 65.0,
+    "service_fee": 5.0,
+    "total": 70.0,
+    "status": "PAID",
+    "created_at": "2026-03-03T04:20:34.100140",
+    "payment": {
+      "exp_date": "",
+      "name_on_card": "Alejandro",
+      "billing_email": "alejandro@gmail.com",
+      "card": "4168818844447115"
+    }
+  },
+  {
+    "id": 7,
+    "user_email": "PLACEHOLDER@EMAIL.COM",
+    "event_id": 9,
+    "event_title": "Champions League Final Viewing",
+    "qty": 1,
+    "unit_price": 65.0,
+    "service_fee": 5.0,
+    "total": 70.0,
+    "status": "PAID",
+    "created_at": "2026-03-03T04:34:50.862164",
+    "payment": {
+      "exp_date": "",
+      "name_on_card": "Alejandro",
+      "billing_email": "alejandro@gmail.com",
+      "card_last4": "7115",
+      "card_masked": "**** **** **** 7115"
+    }
+  },
+  {
+    "id": 8,
+    "user_email": "PLACEHOLDER@EMAIL.COM",
+    "event_id": 9,
+    "event_title": "Champions League Final Viewing",
+    "qty": 1,
+    "unit_price": 65.0,
+    "service_fee": 5.0,
+    "total": 70.0,
+    "status": "PAID",
+    "created_at": "2026-03-03T04:36:17.764093",
+    "payment": {
+      "exp_date": "",
+      "name_on_card": "Alejandro",
+      "billing_email": "alejandro@gmail.com",
+      "card_last4": "7115",
+      "card_masked": "**** **** **** 7115"
+    }
+  },
+  {
+    "id": 9,
+    "user_email": "PLACEHOLDER@EMAIL.COM",
+    "event_id": 1,
+    "event_title": "Summer Music Fest",
+    "qty": 1,
+    "unit_price": 75.0,
+    "service_fee": 5.0,
+    "total": 80.0,
+    "status": "PAID",
+    "created_at": "2026-03-03T04:37:55.514565",
+    "payment": {
+      "exp_date": "",
+      "name_on_card": "David",
+      "billing_email": "daviidi@gmail.com",
+      "card_masked": "**** **** **** 7115"
+    }
   }
 ]
