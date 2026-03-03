@@ -48,5 +48,23 @@
     },
     "role": "user",
     "status": "active"
+  },
+  {
+    "id": 6,
+    "full_name": "prueba correo numero",
+    "email": "numero@correo.com",
+    "phone": {
+      "cipher": "9d03f0dabe825f0bad0460cd",
+      "nonce": "a0773aa430a9c6cb8ee00e204a05b4ff",
+      "tag": "29fd711eb8c3c1fdc4188ceb5755a0be"
+    },
+    "password": {
+      "algorithm": "pbkdf2_sha256",
+      "iterations": 200000,
+      "salt": "2d2e893881d7c1665eab87d917ed7143",
+      "hash": "329362eb6bcd081a0525520783eb3b97feb6a20d2f2563d750a5e9ed5b085628"
+    },
+    "role": "user",
+    "status": "active"
   }
 ]

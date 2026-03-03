@@ -10,7 +10,7 @@ from typing import List, Optional, Dict
 from flask import Flask, render_template, request, abort, url_for, redirect, session
 from pathlib import Path
 import json
-from encryption import encrypt_aes, decrypt_aes, hash_password, verify_password
+from encryption import encrypt_aes, decrypt_aes, hash_password, verify_password, GLOBAL_AES_KEY
 
 from validation import (
     validate_payment_form,
@@ -413,12 +413,17 @@ def register():
 
     users = load_users()
     next_id = (max([u.get("id", 0) for u in users], default=0) + 1)
+    phone_cipher, phone_nonce, phone_tag = encrypt_aes(clean["phone"], GLOBAL_AES_KEY)
 
     users.append({
         "id": next_id,
         "full_name": clean["full_name"],
         "email": clean["email"],
-        "phone": clean["phone"],
+        "phone": {
+            "cipher": phone_cipher,
+            "nonce": phone_nonce,
+            "tag": phone_tag
+        },
         "password": hash_password(clean["password"]),
         "role": "user",
         "status": "active",
@@ -499,6 +504,8 @@ def checkout(event_id: int):
     orders = load_orders()
     order_id = next_order_id(orders)
 
+    email_cipher, email_nonce, email_tag = encrypt_aes(clean["billing_email"],GLOBAL_AES_KEY)
+
     orders.append({
         "id": order_id,
         "user_email": "PLACEHOLDER@EMAIL.COM",
@@ -510,7 +517,17 @@ def checkout(event_id: int):
         "total": total,
         "status": "PAID",
         "created_at": datetime.utcnow().isoformat(),
-        "payment": form_data
+        "payment": {
+        "name_on_card": clean.get("name_on_card", ""),
+        "exp_date": clean.get("exp_date", ""),
+        "card_masked": card_masked,
+
+        "billing_email": {
+            "cipher": email_cipher,
+            "nonce": email_nonce,
+            "tag": email_tag
+            }
+        }
     })
 
     save_orders(orders)
@@ -529,11 +546,22 @@ def profile():
     if not user:
         session.clear()
         return redirect(url_for("login"))
+    
+    phone_data = user.get("phone")
+    phone_plain = ""
+    if isinstance(phone_data, dict):
+        phone_plain = decrypt_aes(
+            phone_data["cipher"],
+            phone_data["nonce"],
+            phone_data["tag"],
+            GLOBAL_AES_KEY
+        )
+
 
     form = {
         "full_name": user.get("full_name", ""),
         "email": user.get("email", ""),
-        "phone": user.get("phone", ""),
+        "phone": phone_plain,
     }
 
     field_errors = {}  
@@ -569,10 +597,17 @@ def profile():
         for u in users:
             if (u.get("email") or "").strip().lower() == email_norm:
                 u["full_name"] = clean["full_name"]
-                u["phone"] = clean["phone"]
+
+                phone_cipher, phone_nonce, phone_tag = encrypt_aes(clean["phone"],GLOBAL_AES_KEY)
+
+                u["phone"] = {
+                    "cipher": phone_cipher,
+                    "nonce": phone_nonce,
+                    "tag": phone_tag
+                }
 
                 if clean.get("new_password"):
-                    u["password"] = clean["new_password"]
+                    u["password"] = hash_password(clean["new_password"])
                 break
 
         save_users(users)

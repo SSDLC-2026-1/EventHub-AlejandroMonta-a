@@ -163,5 +163,27 @@
       "billing_email": "daviidi@gmail.com",
       "card_masked": "**** **** **** 7115"
     }
+  },
+  {
+    "id": 10,
+    "user_email": "PLACEHOLDER@EMAIL.COM",
+    "event_id": 9,
+    "event_title": "Champions League Final Viewing",
+    "qty": 1,
+    "unit_price": 65.0,
+    "service_fee": 5.0,
+    "total": 70.0,
+    "status": "PAID",
+    "created_at": "2026-03-03T22:10:02.155942",
+    "payment": {
+      "name_on_card": "correo",
+      "exp_date": "11/31",
+      "card_masked": "**** **** **** 7115",
+      "billing_email": {
+        "cipher": "320cdd10c0befb51216cb7c88427494f2077",
+        "nonce": "d32ee61ee2a0d4129f566c5363a9a4fa",
+        "tag": "038dc8fc0677e3362bfaa2f200e80196"
+      }
+    }
   }
 ]

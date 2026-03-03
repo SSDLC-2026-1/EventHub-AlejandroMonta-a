@@ -20,6 +20,8 @@ from datetime import datetime
 from typing import Tuple, Dict
 
 
+from encryption import verify_password
+
 # =============================
 # Regular Patterns
 # =============================
@@ -137,7 +139,7 @@ def validate_exp_date(exp_date: str) -> Tuple[str, str]:
     if date_obj.year < today.year or (date_obj.year == today.year and date_obj.month < today.month):
         return "", "Out of date, use another card."
     else:
-        return "", ""
+        return exp_date, ""
 
 def validate_cvv(cvv: str) -> Tuple[str, str]:
     """
@@ -414,7 +416,7 @@ def validate_profile_form(
         
         if not current_password:
             errors["current_password"] = "Current password is required"
-        elif current_password != stored_password:
+        elif not verify_password(current_password, stored_password):
             errors["current_password"] = "Current password is incorrect"
         else:
             password_clean, err = validate_password(new_password, user_email)
