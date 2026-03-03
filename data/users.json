@@ -34,5 +34,19 @@
     "password": "El/topo/no/es/un/animal/c1eg0",
     "role": "user",
     "status": "active"
+  },
+  {
+    "id": 5,
+    "full_name": "Alejandro",
+    "email": "alejandro@gmail.com",
+    "phone": "3001234567",
+    "password": {
+      "algorithm": "pbkdf2_sha256",
+      "iterations": 200000,
+      "salt": "fec9d68b21f94c3a426c8ddc2493a31b",
+      "hash": "f0180296dd71c7ef21a0c16387b458c4bdbe1c5cfd204aadef1da0ef6aaaaee7"
+    },
+    "role": "user",
+    "status": "active"
   }
 ]

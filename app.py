@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+import hmac
 from typing import List, Optional, Dict
 
 from flask import Flask, render_template, request, abort, url_for, redirect, session
 from pathlib import Path
 import json
+from encryption import encrypt_aes, decrypt_aes, hash_password, verify_password
 
 from validation import (
     validate_payment_form,
@@ -329,8 +331,18 @@ def login():
             form={"email": email_norm},
         ), 403
 
-    if not user or user.get("password") != password:
+    stored_password = user.get("password") if user else None
+    is_valid_password = False
+
+    if isinstance(stored_password, dict):
+        is_valid_password = verify_password(password, stored_password)
+    else:
+        # compatibilidad temporal con usuarios viejos en texto plano
+        is_valid_password = hmac.compare_digest(str(stored_password or ""), password)
+
+    if not user or not is_valid_password:
         estado["intentos"] = estado.get("intentos", 0) + 1
+
 
         # Si se alcanza el límite, bloquear la cuenta por 5 minutos
         if estado["intentos"] >= MAX_FAILED_ATTEMPTS:
@@ -399,7 +411,7 @@ def register():
         "full_name": clean["full_name"],
         "email": clean["email"],
         "phone": clean["phone"],
-        "password": clean["password"],
+        "password": hash_password(clean["password"]),
         "role": "user",
         "status": "active",
     })
