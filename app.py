@@ -29,6 +29,17 @@ MAX_FAILED_ATTEMPTS = 3
 LOCKOUT_DURATION_MINUTES = 5
 LOGIN_ATTEMPTS: Dict[str, Dict[str, int]] = {}
 
+SESSION_TIMEOUT_SECONDS = 180
+
+PROTECTED_ENDPOINTS = {
+    "dashboard",
+    "checkout",
+    "profile",
+    "admin_users",
+    "admin_toggle_user",
+    "admin_change_role",
+}
+
 BASE_DIR = Path(__file__).resolve().parent
 EVENTS_PATH = BASE_DIR / "data" / "events.json"
 USERS_PATH = BASE_DIR / "data" / "users.json"
@@ -64,11 +75,44 @@ def get_current_user() -> Optional[dict]:
         return None
     return find_user_by_email(email)
 
+
+def is_session_expired() -> bool:
+    login_ts = session.get("login_at")
+    if login_ts is None:
+        return True
+    try:
+        elapsed = int(datetime.now().timestamp()) - int(login_ts)
+    except (TypeError, ValueError):
+        return True
+    return elapsed > SESSION_TIMEOUT_SECONDS
+
+
+def redirect_login_session_expired():
+    session.clear()
+    return redirect(url_for("login", expired="1"))
+
+
+@app.before_request
+def enforce_session_timeout_on_protected_routes():
+    endpoint = request.endpoint or ""
+    if endpoint not in PROTECTED_ENDPOINTS:
+        return None
+
+    if not get_current_user():
+        return redirect(url_for("login"))
+
+    if is_session_expired():
+        return redirect_login_session_expired()
+
+    return None
+
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if not get_current_user():
             return redirect(url_for("login"))
+        if is_session_expired():
+            return redirect_login_session_expired()
         return f(*args, **kwargs)
     return decorated
 
@@ -80,6 +124,9 @@ def admin_required(f):
 
         if not user:
             return redirect(url_for("login"))
+
+        if is_session_expired():
+            return redirect_login_session_expired()
 
         if user.get("role") != "admin":
             abort(403)
@@ -98,7 +145,8 @@ def inject_user():
     user = get_current_user()
     return {
         "current_user": user,
-        "is_admin": user and user.get("role") == "admin"
+        "is_admin": user and user.get("role") == "admin",
+        "session_timeout_seconds": SESSION_TIMEOUT_SECONDS,
     }
 
 
@@ -296,7 +344,14 @@ def buy_ticket(event_id: int):
 def login():
     if request.method == "GET":
         registered = request.args.get("registered")
-        msg = "Account created successfully. Please sign in." if registered == "1" else None
+        expired = request.args.get("expired")
+        if expired == "1":
+            session.clear()
+            msg = "Your session has expired. Please sign in again."
+        elif registered == "1":
+            msg = "Account created successfully. Please sign in."
+        else:
+            msg = None
         return render_template("login.html", info_message=msg)
 
     email = request.form.get("email", "")
@@ -370,6 +425,7 @@ def login():
     LOGIN_ATTEMPTS[email_norm] = {"intentos": 0, "tiempoBloqueo": 0}
 
     session["user_email"] = (user.get("email") or "").strip().lower()
+    session["login_at"] = int(datetime.now().timestamp())
 
     return redirect(url_for("dashboard"))
 
@@ -674,7 +730,7 @@ def admin_toggle_user(user_id: int):
     return redirect(url_for("admin_users"))
 
 @app.post("/admin/users/<int:user_id>/role")
-
+@admin_required
 def admin_change_role(user_id: int):
     new_role = request.form.get("role", "user")
 

@@ -96,5 +96,47 @@
       </div>
     </div>
   </footer>
+
+  {% if session.get("user_email") %}
+  <script>
+    (function () {
+      const timeoutMs = Number("{{ session_timeout_seconds|default(180)|int }}") * 1000;
+      const loginExpiredUrl = "{{ url_for('login', expired='1') }}";
+      let inactivityTimer;
+
+      function forceSessionExpiry() {
+        window.location.assign(loginExpiredUrl);
+      }
+
+      function resetInactivityTimer() {
+        if (inactivityTimer) {
+          clearTimeout(inactivityTimer);
+        }
+        inactivityTimer = setTimeout(forceSessionExpiry, timeoutMs);
+      }
+
+      const activityEvents = [
+        "mousemove",
+        "mousedown",
+        "keydown",
+        "scroll",
+        "touchstart",
+        "click"
+      ];
+
+      for (const eventName of activityEvents) {
+        window.addEventListener(eventName, resetInactivityTimer, { passive: true });
+      }
+
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+          resetInactivityTimer();
+        }
+      });
+
+      resetInactivityTimer();
+    })();
+  </script>
+  {% endif %}
 </body>
 </html>

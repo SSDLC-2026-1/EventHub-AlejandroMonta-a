@@ -23,7 +23,7 @@
     {% endif %}
 
     {% if info_message %}
-    <div class="auth-banner auth-banner-ok">{{ info_message }}</div>
+    <div class="auth-banner {{ 'auth-banner-error' if request.args.get('expired') == '1' else 'auth-banner-ok' }}">{{ info_message }}</div>
     {% endif %}
 
     <form class="auth-form" method="post" action="{{ url_for('login') }}">
