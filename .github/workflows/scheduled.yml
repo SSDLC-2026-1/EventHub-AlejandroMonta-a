@@ -12,7 +12,7 @@ jobs:
       - name: Start Message
         run: echo "Workflow Ejecutado"
       - name: Show Date
-        run: Date
+        run: date
       - name: Show Trigger Info
         run: echo "Evento disparador registrado"
       - name: Confirm Execution
