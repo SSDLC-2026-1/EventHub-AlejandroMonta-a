@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ZipBackend
-        run: zip -r backend.zip -i "*.py" 
+        run: zip -r backend.zip . -i "*.py" 
       - name: ZipFrontend
         run: zip -r frontend.zip templates/
       - name: ZipData
