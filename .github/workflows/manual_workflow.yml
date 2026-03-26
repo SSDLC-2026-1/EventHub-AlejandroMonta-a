@@ -19,33 +19,32 @@ jobs:
     steps:
       - name: ZipBackend
         run: zip -r backend.zip . -i "*.py" 
-      - name:  ls Frontend
-        run: ls 
-      - name: ZipFrontend
-        run: zip -r frontend.zip templates/.
-      - name: ZipData
-        run: zip -r data.zip data/.
-      - name: ZipFull
-        run: zip -r full.zip .
-
       - name: Opción Backend
         if: inputs.opciones == 'Backend'
         uses: actions/upload-artifact@v4
         with:
           name: backend
           path: backend.zip
+          
+      - name: ZipFrontend
+        run: zip -r frontend.zip templates/.
       - name: Opción Frontend
         if: inputs.opciones == 'Frontend'
         uses: actions/upload-artifact@v4
         with:
           name: frontend
           path: frontend.zip
+      - name: ZipData
+        run: zip -r data.zip data/.
       - name: Opción Data
         if: inputs.opciones == 'Data'
         uses: actions/upload-artifact@v4
         with:
           name: data
           path: data.zip
+
+      - name: ZipFull
+        run: zip -r full.zip .
       - name: Opción Full
         if: inputs.opciones == 'Full'
         uses: actions/upload-artifact@v4
