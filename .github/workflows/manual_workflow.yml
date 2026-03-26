@@ -20,9 +20,9 @@ jobs:
       - name: ZipBackend
         run: zip -r backend.zip . -i "*.py" 
       - name: ZipFrontend
-        run: zip -r frontend.zip templates/
+        run: zip -r frontend.zip templates/.
       - name: ZipData
-        run: zip -r data.zip data/
+        run: zip -r data.zip data/.
       - name: ZipFull
         run: zip -r full.zip .
 
