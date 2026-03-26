@@ -1,0 +1,52 @@
+name: Manual Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      opciones:
+        description: 'Escoja un modulo'
+        required: true
+        type: choice
+        options:
+          - Frontend
+          - Backend
+          - Data
+          - Full
+
+jobs:
+  mensajes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ZipBackend
+        run: zip -r backend.zip -i "*.py" 
+      - name: ZipFrontend
+        run: zip -r frontend.zip templates/
+      - name: ZipData
+        run: zip -r data.zip data/
+      - name: ZipFull
+        run: zip -r full.zip .
+
+      - name: Opción Backend
+        if: inputs.opciones == 'Backend'
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend
+          path: backend.zip
+      - name: Opción Frontend
+        if: inputs.opciones == 'Frontend'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend
+          path: frontend.zip
+      - name: Opción Data
+        if: inputs.opciones == 'Data'
+        uses: actions/upload-artifact@v4
+        with:
+          name: data
+          path: data.zip
+      - name: Opción Full
+        if: inputs.opciones == 'Full'
+        uses: actions/upload-artifact@v4
+        with:
+          name: full
+          path: full.zip
