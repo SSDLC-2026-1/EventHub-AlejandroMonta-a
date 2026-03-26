@@ -1,0 +1,23 @@
+name: Scheduled and manual workflow
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  run-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start Message
+        run: echo "Workflow Ejecutado"
+      - name: Show Date
+        run: Date
+      - name: Show Trigger Info
+        run: echo "Evento disparador registrado"
+      - name: Confirm Execution
+        run: echo "La ejecución fue exitosa"
+      - name: End Message
+        run: echo "Fin del workflow programado"
+      - name: Final confimation
+        run: echo "Proceso completado"
