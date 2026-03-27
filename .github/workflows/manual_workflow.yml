@@ -35,6 +35,13 @@ jobs:
       - name: ZipFull
         run: zip -r full.zip .
 
+      - name: Opción Backend
+        if: inputs.opciones == 'Backend'
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend
+          path: backend.zip
+
 
       - name: Opción Frontend
         if: inputs.opciones == 'Frontend'
