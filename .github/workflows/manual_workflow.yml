@@ -16,7 +16,14 @@ on:
 jobs:
   mensajes:
     runs-on: ubuntu-latest
+
     steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+
       - name: ZipBackend
         run: zip -r backend.zip . -i "*.py" 
       - name:  ls Frontend
