@@ -1,0 +1,36 @@
+name: Pull request verification
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  python-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: App.py existence
+        run: test -f app.py
+
+      - name: Requirements.txt existence
+        run: test -f requirements.txt
+
+      - name: Folders existence
+        run: |
+          test -d templates
+          test -d static
+          test -d data
+
+      - name: format .json valid
+        run: |
+          python -m json.tool data/users.json > /dev/null
+          python -m json.tool data/events.json > /dev/null
+          python -m json.tool data/orders.json > /dev/null
