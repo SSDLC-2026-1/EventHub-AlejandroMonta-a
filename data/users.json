@@ -48,8 +48,7 @@
     },
     "role": "user",
     "status": "active"
-  },
-  {
+  },  {
     "id": 6,
     "full_name": "prueba correo numero",
     "email": "numero@correo.com",
