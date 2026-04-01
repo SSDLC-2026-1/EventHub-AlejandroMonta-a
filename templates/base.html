@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title or "EventHub" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+{% block header %}
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="{{ url_for('index') }}">
+      <span class="brand-badge">EH</span>
+      <span class="brand-name">EventHub</span>
+    </a>
+
+    <nav class="navlinks">
+      <a href="{{ url_for('index') }}">Explore</a>
+      <a href="{{ url_for('index', category='Tech') }}">Categories</a>
+    </nav>
+
+    <div class="top-actions">
+      <form class="mini-search" action="{{ url_for('index') }}" method="get">
+        <input name="q" value="{{ request.args.get('q','') }}" placeholder="Search events..." />
+      </form>
+
+      {% if session.get("user_email") %}
+      <div class="dropdown">
+          <a href="#" class="btn btn-ghost dropdown-toggle">
+              My Profile
+          </a>
+
+          <div id="profileMenu" class="dropdown-menu">
+
+              <a href="{{ url_for('profile') }}" class="dropdown-item">
+                Settings
+              </a>
+
+              <div class="dropdown-divider"></div>
+
+              <form method="POST" action="{{ url_for('logout') }}">
+                <button type="submit" class="dropdown-item logout-btn">
+                    Logout
+                </button>
+              </form>
+
+          </div>
+      </div>
+      {% if is_admin %}
+          <a class="btn btn-ghost" href="{{ url_for('admin_users') }}">Admin Panel</a>
+        {% endif %}
+      {% else %}
+        <a class="btn btn-ghost" href="{{ url_for('login') }}">Login</a>
+        <a class="btn btn-primary" href="{{ url_for('register') }}">Register</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+{% endblock %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="brand footer-brand">
+          <span class="brand-badge">EH</span>
+          <span class="brand-name">EventHub</span>
+        </div>
+        <p class="muted">Discover and experience the best events near you.</p>
+      </div>
+
+      <div>
+        <h4>Quick Links</h4>
+        <a href="#" class="footer-link">About Us</a>
+        <a href="#" class="footer-link">Contact</a>
+        <a href="#" class="footer-link">Blog</a>
+        <a href="#" class="footer-link">FAQs</a>
+      </div>
+
+      <div>
+        <h4>Categories</h4>
+        <a href="{{ url_for('index', category='Music') }}" class="footer-link">Music</a>
+        <a href="{{ url_for('index', category='Tech') }}" class="footer-link">Tech</a>
+        <a href="{{ url_for('index', category='Sports') }}" class="footer-link">Sports</a>
+        <a href="{{ url_for('index', category='Business') }}" class="footer-link">Business</a>
+      </div>
+
+      <div>
+        <h4>Connect With Us</h4>
+        <p class="muted">Social icons placeholders</p>
+      </div>
+    </div>
+  </footer>
+
+  {% if session.get("user_email") %}
+  <script>
+    (function () {
+      const timeoutMs = Number("{{ session_timeout_seconds|default(180)|int }}") * 1000;
+      const loginExpiredUrl = "{{ url_for('login', expired='1') }}";
+      let inactivityTimer;
+
+      function forceSessionExpiry() {
+        window.location.assign(loginExpiredUrl);
+      }
+
+      function resetInactivityTimer() {
+        if (inactivityTimer) {
+          clearTimeout(inactivityTimer);
+        }
+        inactivityTimer = setTimeout(forceSessionExpiry, timeoutMs);
+      }
+
+      const activityEvents = [
+        "mousemove",
+        "mousedown",
+        "keydown",
+        "scroll",
+        "touchstart",
+        "click"
+      ];
+
+      for (const eventName of activityEvents) {
+        window.addEventListener(eventName, resetInactivityTimer, { passive: true });
+      }
+
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+          resetInactivityTimer();
+        }
+      });
+
+      resetInactivityTimer();
+    })();
+  </script>
+  {% endif %}
+</body>
+</html>
